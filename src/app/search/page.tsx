@@ -1,6 +1,6 @@
 import { ArticleGrid } from "@/components/articles/ArticleGrid";
 import { SearchForm } from "@/components/ui/SearchForm";
-import { searchArticles } from "@/lib/articles";
+import { searchBackendArticles } from "@/lib/api";
 
 export default async function SearchPage({
   searchParams,
@@ -9,7 +9,7 @@ export default async function SearchPage({
 }) {
   const params = await searchParams;
   const query = params.q || "";
-  const articles = searchArticles(query);
+  const articles = await searchBackendArticles(query);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">

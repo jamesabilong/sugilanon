@@ -1,47 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate } from "@/lib/articles";
-import { isAdminAuthenticated, loadArticles, saveArticles, setAdminAuthenticated } from "@/lib/admin-storage";
+import { adminApi } from "@/lib/api";
 import type { Article } from "@/types/article";
 
 export function AdminArticleManager() {
-  const [articles, setArticles] = useState<Article[]>(() =>
-    typeof window === "undefined" ? [] : loadArticles(),
-  );
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [stats, setStats] = useState({ published: 0, drafts: 0, total: 0 });
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!isAdminAuthenticated()) {
-      window.location.href = "/admin/login";
-    }
+    void loadDashboard();
   }, []);
 
-  const stats = useMemo(
-    () => ({
-      published: articles.filter((article) => article.status === "published").length,
-      drafts: articles.filter((article) => article.status === "draft").length,
-      total: articles.length,
-    }),
-    [articles],
-  );
-
-  function updateStatus(id: string, status: Article["status"]) {
-    const next = articles.map((article) =>
-      article.id === id
-        ? { ...article, status, publishedAt: status === "published" ? new Date().toISOString() : article.publishedAt, updatedAt: new Date().toISOString() }
-        : article,
-    );
-    setArticles(next);
-    saveArticles(next);
+  async function loadDashboard() {
+    try {
+      await adminApi.me();
+      const [dashboard, articleResult] = await Promise.all([
+        adminApi.dashboard(),
+        adminApi.articles(),
+      ]);
+      setArticles(articleResult.data);
+      setStats({
+        published: dashboard.publishedArticles,
+        drafts: dashboard.draftArticles,
+        total: articleResult.meta.total,
+      });
+    } catch (error) {
+      if (error instanceof Error) setError(error.message);
+      window.location.href = "/admin/login";
+    }
   }
 
-  function removeArticle(id: string) {
-    const next = articles.filter((article) => article.id !== id);
-    setArticles(next);
-    saveArticles(next);
+  async function updateStatus(id: number | string, status: Article["status"]) {
+    if (status === "published") {
+      await adminApi.publishArticle(id);
+    } else {
+      await adminApi.unpublishArticle(id);
+    }
+    await loadDashboard();
+  }
+
+  async function removeArticle(id: number | string) {
+    await adminApi.deleteArticle(id);
+    await loadDashboard();
   }
 
   return (
@@ -53,10 +59,11 @@ export function AdminArticleManager() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href="/admin/articles/new" className="bg-zinc-950 px-4 py-3 text-sm font-semibold text-white">New Article</Link>
+          <Link href="/admin/source-inbox" className="border border-emerald-300 px-4 py-3 text-sm font-semibold text-emerald-800">Source Inbox</Link>
           <button
             type="button"
-            onClick={() => {
-              setAdminAuthenticated(false);
+            onClick={async () => {
+              await adminApi.logout();
               window.location.href = "/";
             }}
             className="border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700"
@@ -65,6 +72,7 @@ export function AdminArticleManager() {
           </button>
         </div>
       </div>
+      {error ? <p className="mt-4 text-sm text-red-700">{error}</p> : null}
 
       <section className="grid gap-4 py-6 sm:grid-cols-3">
         {[

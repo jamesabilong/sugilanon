@@ -1,12 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { categories, formatDate, getPublishedArticles } from "@/lib/articles";
+import { formatDate } from "@/lib/articles";
+import { fetchCategories, fetchPublishedArticles } from "@/lib/api";
 
-export default function Home() {
-  const articles = getPublishedArticles();
+export default async function Home() {
+  const [articles, categories] = await Promise.all([
+    fetchPublishedArticles("?limit=12"),
+    fetchCategories(),
+  ]);
   const [featured, ...latest] = articles;
   const recommended = articles.slice(1, 4);
+  const featuredImage =
+    featured?.coverImageUrl ||
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
 
   return (
     <main>
@@ -45,7 +52,7 @@ export default function Home() {
                 className="relative block h-64 bg-zinc-200 sm:h-80"
               >
                 <Image
-                  src={featured.coverImageUrl}
+                  src={featuredImage}
                   alt=""
                   fill
                   priority

@@ -1,14 +1,14 @@
 import type { Article, Category } from "@/types/article";
 
 export const categories: Category[] = [
-  { name: "Cebu News", slug: "cebu-news", description: "Local updates, public advisories, and community developments across Cebu." },
-  { name: "Philippine News", slug: "philippine-news", description: "National stories summarized for readers who want the useful details first." },
-  { name: "Community", slug: "community", description: "People, groups, events, and initiatives shaping local life." },
-  { name: "Guides", slug: "guides", description: "Practical explainers for public services, local errands, and everyday planning." },
-  { name: "Local Business", slug: "local-business", description: "Small business news, market notes, and neighborhood commerce." },
-  { name: "Weather and Emergency Updates", slug: "weather-emergency-updates", description: "Preparedness notes and verified public safety reminders." },
-  { name: "Opinion", slug: "opinion", description: "Clearly labeled perspectives on local issues and civic life." },
-  { name: "Technology", slug: "technology", description: "Digital tools, internet access, public tech, and practical apps." },
+  { id: 1, name: "Cebu News", slug: "cebu-news", description: "Local updates, public advisories, and community developments across Cebu." },
+  { id: 2, name: "Philippine News", slug: "philippine-news", description: "National stories summarized for readers who want the useful details first." },
+  { id: 3, name: "Community", slug: "community", description: "People, groups, events, and initiatives shaping local life." },
+  { id: 4, name: "Guides", slug: "guides", description: "Practical explainers for public services, local errands, and everyday planning." },
+  { id: 5, name: "Local Business", slug: "local-business", description: "Small business news, market notes, and neighborhood commerce." },
+  { id: 6, name: "Weather and Emergency Updates", slug: "weather-emergency-updates", description: "Preparedness notes and verified public safety reminders." },
+  { id: 7, name: "Opinion", slug: "opinion", description: "Clearly labeled perspectives on local issues and civic life." },
+  { id: 8, name: "Technology", slug: "technology", description: "Digital tools, internet access, public tech, and practical apps." },
 ];
 
 const image = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
@@ -27,10 +27,10 @@ export const seededArticles: Article[] = [
     ],
     coverImageUrl: image("1518005020951-eccb494ad742"),
     status: "published",
-    author: "PhilWatch Desk",
+    author: { id: 1, username: "PhilWatch Desk" },
     category: categories[0],
-    tags: ["Cebu", "Permits", "Public Service"],
-    sources: [{ name: "Cebu City Public Information Office", url: "https://cebucity.gov.ph/" }],
+    tags: [{ name: "Cebu" }, { name: "Permits" }, { name: "Public Service" }],
+    sources: [{ sourceName: "Cebu City Public Information Office", sourceUrl: "https://cebucity.gov.ph/" }],
     seoTitle: "Cebu City Weekend Permit Processing Desk",
     seoDescription: "What Cebu residents should know about weekend local permit processing.",
     publishedAt: "2026-06-22T08:00:00.000Z",
@@ -49,10 +49,10 @@ export const seededArticles: Article[] = [
     ],
     coverImageUrl: image("1500530855697-b586d89ba3ee"),
     status: "published",
-    author: "Mara Santos",
+    author: { id: 2, username: "Mara Santos" },
     category: categories[5],
-    tags: ["Weather", "Emergency", "Preparedness"],
-    sources: [{ name: "PAGASA", url: "https://www.pagasa.dost.gov.ph/" }],
+    tags: [{ name: "Weather" }, { name: "Emergency" }, { name: "Preparedness" }],
+    sources: [{ sourceName: "PAGASA", sourceUrl: "https://www.pagasa.dost.gov.ph/" }],
     seoTitle: "Central Visayas Heavy Rain Preparedness Checklist",
     seoDescription: "What to prepare before heavy rain advisories in Central Visayas.",
     publishedAt: "2026-06-21T10:15:00.000Z",
@@ -71,9 +71,9 @@ export const seededArticles: Article[] = [
     ],
     coverImageUrl: image("1497366754035-f200968a6e72"),
     status: "published",
-    author: "PhilWatch Desk",
+    author: { id: 1, username: "PhilWatch Desk" },
     category: categories[2],
-    tags: ["Barangay", "Community", "Digital"],
+    tags: [{ name: "Barangay" }, { name: "Community" }, { name: "Digital" }],
     sources: [],
     seoTitle: "Better Online Barangay Announcements",
     seoDescription: "Publishing tips for clear and useful barangay announcements.",
@@ -93,9 +93,9 @@ export const seededArticles: Article[] = [
     ],
     coverImageUrl: image("1554224155-6726b3ff858f"),
     status: "published",
-    author: "Rico Mendoza",
+    author: { id: 3, username: "Rico Mendoza" },
     category: categories[3],
-    tags: ["Government IDs", "Guide", "Documents"],
+    tags: [{ name: "Government IDs" }, { name: "Guide" }, { name: "Documents" }],
     sources: [],
     seoTitle: "Common Philippine ID Application Guide",
     seoDescription: "Documents and reminders for first-time Philippine ID applicants.",
@@ -115,9 +115,9 @@ export const seededArticles: Article[] = [
     ],
     coverImageUrl: image("1501339847302-ac426a4a7cbb"),
     status: "published",
-    author: "Lea Villanueva",
+    author: { id: 4, username: "Lea Villanueva" },
     category: categories[4],
-    tags: ["Small Business", "Food", "Delivery"],
+    tags: [{ name: "Small Business" }, { name: "Food" }, { name: "Delivery" }],
     sources: [],
     seoTitle: "Local Cafe Delivery Groups in Cebu",
     seoDescription: "How small cafes use community delivery groups for neighborhood sales.",
@@ -153,12 +153,22 @@ export function searchArticles(query: string, articles = seededArticles) {
   }
 
   return getPublishedArticles(articles).filter((article) => {
-    const haystack = [article.title, article.summary, article.content.join(" "), article.category.name, article.tags.join(" ")]
+    const content = Array.isArray(article.content) ? article.content.join(" ") : article.content;
+    const haystack = [article.title, article.summary, content, article.category.name, article.tags.map((tag) => tag.name).join(" ")]
       .join(" ")
       .toLowerCase();
 
     return haystack.includes(normalized);
   });
+}
+
+export function articleParagraphs(content: Article["content"]) {
+  return Array.isArray(content)
+    ? content
+    : content
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
 }
 
 export function formatDate(value: string) {

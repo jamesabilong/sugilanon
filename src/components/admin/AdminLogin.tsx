@@ -2,24 +2,24 @@
 
 import { FormEvent, useState } from "react";
 
-import { setAdminAuthenticated } from "@/lib/admin-storage";
+import { adminApi } from "@/lib/api";
 
 export function AdminLogin() {
   const [error, setError] = useState("");
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") || "");
+    const username = String(form.get("username") || "");
     const password = String(form.get("password") || "");
 
-    if (email === "admin@philwatch.local" && password === "admin123") {
-      setAdminAuthenticated(true);
+    try {
+      await adminApi.login(username, password);
       window.location.href = "/admin";
-      return;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Login failed.");
     }
-
-    setError("Use admin@philwatch.local and admin123 for the frontend MVP.");
   }
 
   return (
@@ -29,12 +29,12 @@ export function AdminLogin() {
         <h1 className="mt-2 text-3xl font-bold text-zinc-950">Manage PhilWatch</h1>
         <div className="mt-6 grid gap-4">
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Email
-            <input name="email" type="email" defaultValue="admin@philwatch.local" className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950 outline-none focus:border-zinc-950" />
+            Username
+            <input name="username" type="text" autoComplete="username" className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950 outline-none focus:border-zinc-950" />
           </label>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
             Password
-            <input name="password" type="password" defaultValue="admin123" className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950 outline-none focus:border-zinc-950" />
+            <input name="password" type="password" autoComplete="current-password" className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950 outline-none focus:border-zinc-950" />
           </label>
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
           <button type="submit" className="min-h-12 bg-zinc-950 px-5 font-semibold text-white hover:bg-emerald-700">

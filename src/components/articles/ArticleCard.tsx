@@ -5,6 +5,10 @@ import { formatDate } from "@/lib/articles";
 import type { Article } from "@/types/article";
 
 export function ArticleCard({ article, priority = false }: { article: Article; priority?: boolean }) {
+  const imageUrl =
+    article.coverImageUrl ||
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+
   return (
     <article className="grid overflow-hidden border border-zinc-200 bg-white md:grid-cols-[220px_1fr]">
       <Link
@@ -12,7 +16,7 @@ export function ArticleCard({ article, priority = false }: { article: Article; p
         className="relative block min-h-52 bg-zinc-100 md:min-h-full"
       >
         <Image
-          src={article.coverImageUrl}
+          src={imageUrl}
           alt=""
           fill
           priority={priority}
@@ -33,7 +37,9 @@ export function ArticleCard({ article, priority = false }: { article: Article; p
           </Link>
         </h2>
         <p className="line-clamp-3 text-sm leading-6 text-zinc-600">{article.summary}</p>
-        <p className="mt-auto text-sm text-zinc-500">By {article.author}</p>
+        <p className="mt-auto text-sm text-zinc-500">
+          By {article.author?.username || "PhilWatch Desk"}
+        </p>
       </div>
     </article>
   );

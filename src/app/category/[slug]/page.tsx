@@ -1,17 +1,18 @@
 import { notFound } from "next/navigation";
 
 import { ArticleGrid } from "@/components/articles/ArticleGrid";
-import { findCategoryBySlug, getArticlesByCategory } from "@/lib/articles";
+import { fetchCategories, fetchCategoryArticles } from "@/lib/api";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = findCategoryBySlug(slug);
+  const categories = await fetchCategories();
+  const category = categories.find((item) => item.slug === slug);
 
   if (!category) {
     notFound();
   }
 
-  const articles = getArticlesByCategory(slug);
+  const articles = await fetchCategoryArticles(slug);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
