@@ -6,8 +6,6 @@ import { articleParagraphs } from "@/lib/articles";
 import { adminApi } from "@/lib/api";
 import type { Article, Category } from "@/types/article";
 
-const fallbackImage = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
-
 export function ArticleEditor({ articleId }: { articleId?: string }) {
   const [article, setArticle] = useState<Article | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,7 +41,7 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
       slug: String(form.get("slug") || "untitled-article").toLowerCase().replaceAll(" ", "-"),
       summary: String(form.get("summary") || ""),
       content: String(form.get("content") || ""),
-      coverImageUrl: String(form.get("coverImageUrl") || fallbackImage),
+      coverImageUrl: String(form.get("coverImageUrl") || "") || null,
       status,
       categoryId: Number(form.get("categoryId") || selectedCategoryId),
       tags: String(form.get("tags") || "").split(",").map((tag) => tag.trim()).filter(Boolean),
@@ -113,7 +111,7 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
         </div>
         <label className="grid gap-2 text-sm font-medium text-zinc-700">
           Cover image URL
-          <input name="coverImageUrl" defaultValue={article?.coverImageUrl || fallbackImage} className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950" />
+          <input name="coverImageUrl" defaultValue={article?.coverImageUrl || ""} className="min-h-12 border border-zinc-300 px-3 text-base text-zinc-950" />
         </label>
         <label className="grid gap-2 text-sm font-medium text-zinc-700">
           Source URLs

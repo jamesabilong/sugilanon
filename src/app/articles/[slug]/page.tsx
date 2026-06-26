@@ -1,9 +1,26 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
-import { articleParagraphs, formatDate } from "@/lib/articles";
+import { formatDate, getArticleImageUrl } from "@/lib/articles";
 import { fetchArticleBySlug, fetchPublishedArticles } from "@/lib/api";
+
+function articleContentLines(content: string | string[]) {
+  const text = Array.isArray(content) ? content.join("\n\n") : content;
+  return text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function isHeadingLine(line: string) {
+  if (line.startsWith("- ")) return false;
+  if (/^Original source:/i.test(line)) return false;
+  if (/^(Issued at|Valid Beginning|Valid Until|Location of Eye\/center|Movement|Strength|Forecast Position)/i.test(line)) {
+    return true;
+  }
+  const letters = line.replace(/[^A-Za-z]/g, "");
+  return letters.length >= 8 && line === line.toUpperCase();
+}
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,9 +34,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const related = allArticles
     .filter((item) => item.id !== article.id && item.category.slug === article.category.slug)
     .slice(0, 3);
-  const coverImageUrl =
-    article.coverImageUrl ||
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+  const coverImageUrl = getArticleImageUrl(article);
 
   return (
     <main className="bg-white">
@@ -42,23 +57,50 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </header>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="relative h-[280px] w-full sm:h-[460px]">
-            <Image
+            <img
               src={coverImageUrl}
               alt=""
-              fill
-              priority
-              sizes="(min-width: 1024px) 1152px, 100vw"
-              className="object-cover"
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </div>
         <div className="mx-auto grid max-w-4xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
           <div className="max-w-none">
-            {articleParagraphs(article.content).map((paragraph) => (
-              <p key={paragraph} className="mb-5 text-lg leading-8 text-zinc-700">
-                {paragraph}
-              </p>
-            ))}
+            {articleContentLines(article.content).map((line, index) => {
+              const key = `${index}-${line}`;
+              if (/^Original source:/i.test(line)) {
+                const sourceUrl = line.replace(/^Original source:\s*/i, "");
+                return (
+                  <p key={key} className="mt-8 border-t border-zinc-200 pt-5 text-sm leading-6 text-zinc-500">
+                    Original source:{" "}
+                    <a href={sourceUrl} target="_blank" rel="noreferrer" className="font-semibold text-emerald-700">
+                      {sourceUrl}
+                    </a>
+                  </p>
+                );
+              }
+              if (line.startsWith("- ")) {
+                return (
+                  <div key={key} className="mb-2 flex gap-3 text-lg leading-8 text-zinc-700">
+                    <span className="mt-3 h-1.5 w-1.5 shrink-0 bg-emerald-700" />
+                    <p>{line.slice(2)}</p>
+                  </div>
+                );
+              }
+              if (isHeadingLine(line)) {
+                return (
+                  <h2 key={key} className="mb-3 mt-8 text-2xl font-bold leading-tight text-zinc-950 first:mt-0">
+                    {line}
+                  </h2>
+                );
+              }
+              return (
+                <p key={key} className="mb-5 text-lg leading-8 text-zinc-700">
+                  {line}
+                </p>
+              );
+            })}
           </div>
           <div className="flex flex-wrap gap-2">
             {article.tags.map((tag) => (

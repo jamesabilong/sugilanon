@@ -1,13 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 
-import { formatDate } from "@/lib/articles";
+import { formatDate, getArticleImageUrl } from "@/lib/articles";
 import type { Article } from "@/types/article";
 
 export function ArticleCard({ article, priority = false }: { article: Article; priority?: boolean }) {
-  const imageUrl =
-    article.coverImageUrl ||
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+  const imageUrl = getArticleImageUrl(article);
 
   return (
     <article className="grid overflow-hidden border border-zinc-200 bg-white md:grid-cols-[220px_1fr]">
@@ -15,13 +12,11 @@ export function ArticleCard({ article, priority = false }: { article: Article; p
         href={`/articles/${article.slug}`}
         className="relative block min-h-52 bg-zinc-100 md:min-h-full"
       >
-        <Image
+        <img
           src={imageUrl}
           alt=""
-          fill
-          priority={priority}
-          sizes="(min-width: 768px) 220px, 100vw"
-          className="object-cover"
+          fetchPriority={priority ? "high" : "auto"}
+          className="absolute inset-0 h-full w-full object-cover"
         />
       </Link>
       <div className="flex flex-col gap-3 p-5">

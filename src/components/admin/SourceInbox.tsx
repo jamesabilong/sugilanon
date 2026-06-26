@@ -3,10 +3,36 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatDate } from "@/lib/articles";
 import { adminApi } from "@/lib/api";
 import type { SourceDraft } from "@/types/article";
+
+function hasExtractedContent(draft: SourceDraft) {
+  const rawExcerpt = draft.rawExcerpt?.trim() || "";
+  if (rawExcerpt.length < 20) return false;
+  if (rawExcerpt.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() === draft.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()) {
+    return false;
+  }
+  if (draft.sourceId.startsWith("pagasa-") && !rawExcerpt.includes("\n")) {
+    return false;
+  }
+  return true;
+}
+
+function contentStatus(draft: SourceDraft) {
+  if (draft.article) return "Converted";
+  if (draft.status === "converted") return "Article deleted";
+  if (draft.status === "ignored") return "Ignored";
+  if (hasExtractedContent(draft)) return "Source content ready";
+  return "Will re-fetch on convert";
+}
+
+function draftStatusClass(draft: SourceDraft) {
+  if (draft.article) return "bg-emerald-100 text-emerald-800";
+  if (draft.status === "converted") return "bg-red-50 text-red-700";
+  if (draft.status === "ignored") return "bg-zinc-100 text-zinc-700";
+  return "bg-amber-100 text-amber-800";
+}
 
 export function SourceInbox() {
   const [drafts, setDrafts] = useState<SourceDraft[]>([]);
@@ -104,9 +130,20 @@ export function SourceInbox() {
                   <span className="bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700">
                     {draft.agency}
                   </span>
-                  <StatusBadge status={draft.status === "new" ? "draft" : "published"} />
+                  <span className={`px-2.5 py-1 text-xs font-semibold ${draftStatusClass(draft)}`}>
+                    {draft.status}
+                  </span>
                   <span className="text-sm text-zinc-500">{formatDate(draft.detectedAt)}</span>
                   {draft.category ? <span className="text-sm text-zinc-500">{draft.category.name}</span> : null}
+                  <span
+                    className={`px-2.5 py-1 text-xs font-semibold ${
+                      hasExtractedContent(draft) || draft.article
+                        ? "bg-emerald-50 text-emerald-800"
+                        : "bg-amber-50 text-amber-800"
+                    }`}
+                  >
+                    {contentStatus(draft)}
+                  </span>
                 </div>
                 <h2 className="mt-2 text-lg font-bold text-zinc-950">{draft.title}</h2>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-600">{draft.summary}</p>
@@ -120,10 +157,10 @@ export function SourceInbox() {
                     Edit Article
                   </Link>
                 ) : null}
-                {draft.status === "new" ? (
+                {draft.status === "new" || (draft.status === "converted" && !draft.article) ? (
                   <>
                     <button type="button" disabled={busy} onClick={() => convertDraft(draft.id)} className="border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-800 disabled:opacity-60">
-                      Convert
+                      {draft.status === "converted" ? "Convert Again" : "Convert"}
                     </button>
                     <button type="button" disabled={busy} onClick={() => ignoreDraft(draft.id)} className="border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-700 disabled:opacity-60">
                       Ignore

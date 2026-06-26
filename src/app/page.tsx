@@ -1,19 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
 
-import { formatDate } from "@/lib/articles";
-import { fetchCategories, fetchPublishedArticles } from "@/lib/api";
+import { EarthquakeWatch } from "@/components/EarthquakeWatch";
+import { formatDate, getArticleImageUrl } from "@/lib/articles";
+import { fetchCategories, fetchLatestEarthquakes, fetchPublishedArticles } from "@/lib/api";
 
 export default async function Home() {
-  const [articles, categories] = await Promise.all([
-    fetchPublishedArticles("?limit=12"),
+  const [articles, categories, earthquakeFeed] = await Promise.all([
+    fetchPublishedArticles("?limit=100"),
     fetchCategories(),
+    fetchLatestEarthquakes(),
   ]);
-  const [featured, ...latest] = articles;
+  const [featured] = articles;
   const recommended = articles.slice(1, 4);
-  const featuredImage =
-    featured?.coverImageUrl ||
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
+  const featuredImage = getArticleImageUrl(featured);
 
   return (
     <main>
@@ -51,13 +50,11 @@ export default async function Home() {
                 href={`/articles/${featured.slug}`}
                 className="relative block h-64 bg-zinc-200 sm:h-80"
               >
-                <Image
+                <img
                   src={featuredImage}
                   alt=""
-                  fill
-                  priority
-                  sizes="(min-width: 768px) 45vw, 100vw"
-                  className="object-cover"
+                  fetchPriority="high"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               </Link>
               <div className="p-5">
@@ -88,7 +85,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="grid gap-5">
-            {latest.slice(0, 4).map((article) => (
+            {articles.map((article) => (
               <article key={article.id} className="border border-zinc-200 bg-white p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                   {article.category.name} / {formatDate(article.publishedAt)}
@@ -105,6 +102,7 @@ export default async function Home() {
         </div>
 
         <aside className="grid content-start gap-6">
+          <EarthquakeWatch feed={earthquakeFeed} />
           <section className="border border-zinc-200 bg-white p-5">
             <h2 className="text-lg font-bold text-zinc-950">Categories</h2>
             <div className="mt-4 grid gap-2">

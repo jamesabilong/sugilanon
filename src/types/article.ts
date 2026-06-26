@@ -31,6 +31,7 @@ export type Article = {
   summary: string;
   content: string | string[];
   coverImageUrl: string | null;
+  img: string | null;
   status: ArticleStatus;
   author: Author | null;
   category: Category;
@@ -59,6 +60,28 @@ export type SourceDraft = {
   updatedAt: string;
   category: Category | null;
   article: Pick<Article, "id" | "title" | "slug" | "status"> | null;
+};
+
+export type EarthquakeItem = {
+  id: string;
+  title: string;
+  sourceUrl: string;
+  dateTime: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  depthKm: string | null;
+  magnitude: string | null;
+  location: string | null;
+  summary: string;
+};
+
+export type EarthquakeFeed = {
+  source: {
+    name: string;
+    url: string;
+  };
+  fetchedAt: string;
+  data: EarthquakeItem[];
 };
 
 export type Paginated<T> = {

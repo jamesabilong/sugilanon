@@ -1,8 +1,10 @@
 import Link from "next/link";
 
-import { categories } from "@/lib/articles";
+import { fetchCategories } from "@/lib/api";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const categories = await fetchCategories();
+
   return (
     <header className="border-b border-zinc-200 bg-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6 lg:px-8">

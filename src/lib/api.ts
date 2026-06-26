@@ -1,5 +1,4 @@
-import { seededArticles, categories as fallbackCategories } from "@/lib/articles";
-import type { Article, Category, Paginated, SourceDraft } from "@/types/article";
+import type { Article, Category, EarthquakeFeed, Paginated, SourceDraft } from "@/types/article";
 
 type RequestOptions = RequestInit & {
   useInternalBase?: boolean;
@@ -41,64 +40,73 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 }
 
 export async function fetchPublishedArticles(params = "", useInternalBase = true) {
-  try {
-    const result = await request<Paginated<Article>>(`/sugilanon/articles${params}`, {
-      cache: "no-store",
-      useInternalBase,
-    });
-    return result.data.length ? result.data : seededArticles;
-  } catch {
-    return seededArticles;
-  }
+	try {
+		const result = await request<Paginated<Article>>(`/sugilanon/articles${params}`, {
+			cache: "no-store",
+			useInternalBase,
+		});
+		return result.data;
+	} catch {
+		return [];
+	}
 }
 
 export async function fetchArticleBySlug(slug: string) {
-  try {
-    return await request<Article>(`/sugilanon/articles/${slug}`, {
-      cache: "no-store",
-      useInternalBase: true,
-    });
-  } catch {
-    return seededArticles.find((article) => article.slug === slug) || null;
-  }
+	try {
+		return await request<Article>(`/sugilanon/articles/${slug}`, {
+			cache: "no-store",
+			useInternalBase: true,
+		});
+	} catch {
+		return null;
+	}
 }
 
 export async function fetchCategories(useInternalBase = true) {
-  try {
-    const categories = await request<Category[]>("/sugilanon/categories", {
-      cache: "no-store",
-      useInternalBase,
-    });
-    return categories.length ? categories : fallbackCategories;
-  } catch {
-    return fallbackCategories;
-  }
+	try {
+		const categories = await request<Category[]>("/sugilanon/categories", {
+			cache: "no-store",
+			useInternalBase,
+		});
+		return categories;
+	} catch {
+		return [];
+	}
 }
 
 export async function fetchCategoryArticles(slug: string) {
-  try {
-    const result = await request<Paginated<Article>>(`/sugilanon/categories/${slug}/articles`, {
-      cache: "no-store",
-      useInternalBase: true,
-    });
-    return result.data.length
-      ? result.data
-      : seededArticles.filter((article) => article.category.slug === slug);
-  } catch {
-    return seededArticles.filter((article) => article.category.slug === slug);
-  }
+	try {
+		const result = await request<Paginated<Article>>(`/sugilanon/categories/${slug}/articles`, {
+			cache: "no-store",
+			useInternalBase: true,
+		});
+		return result.data;
+	} catch {
+		return [];
+	}
 }
 
 export async function searchBackendArticles(query: string) {
   const search = query ? `?q=${encodeURIComponent(query)}` : "";
+	try {
+		const result = await request<Paginated<Article>>(`/sugilanon/search${search}`, {
+			cache: "no-store",
+			useInternalBase: true,
+		});
+		return result.data;
+	} catch {
+		return [];
+	}
+}
+
+export async function fetchLatestEarthquakes() {
   try {
-    const result = await request<Paginated<Article>>(`/sugilanon/search${search}`, {
+    return await request<EarthquakeFeed>("/sugilanon/earthquakes/latest", {
       cache: "no-store",
       useInternalBase: true,
     });
-    return result.data.length || query ? result.data : seededArticles;
   } catch {
-    return seededArticles;
+    return null;
   }
 }
 

@@ -89,7 +89,7 @@ export function AdminArticleManager() {
 
       <section className="overflow-hidden border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 p-5">
-          <h2 className="text-xl font-bold text-zinc-950">Recent Posts</h2>
+          <h2 className="text-xl font-bold text-zinc-950">All Posts</h2>
         </div>
         <div className="divide-y divide-zinc-200">
           {articles.map((article) => (
