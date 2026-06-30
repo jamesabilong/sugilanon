@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { formatDate, getArticleImageUrl } from "@/lib/articles";
@@ -57,11 +58,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </header>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="relative h-[280px] w-full sm:h-[460px]">
-            <img
+            <Image
               src={coverImageUrl}
               alt=""
-              fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover"
+              fill
+              priority
+              sizes="(min-width: 1024px) 1152px, 100vw"
+              className="object-cover"
             />
           </div>
         </div>

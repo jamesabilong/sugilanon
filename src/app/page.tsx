@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { EarthquakeWatch } from "@/components/EarthquakeWatch";
 import { formatDate, getArticleImageUrl } from "@/lib/articles";
@@ -50,11 +51,13 @@ export default async function Home() {
                 href={`/articles/${featured.slug}`}
                 className="relative block h-64 bg-zinc-200 sm:h-80"
               >
-                <img
+                <Image
                   src={featuredImage}
                   alt=""
-                  fetchPriority="high"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  fill
+                  priority
+                  sizes="(min-width: 768px) 40vw, 100vw"
+                  className="object-cover"
                 />
               </Link>
               <div className="p-5">

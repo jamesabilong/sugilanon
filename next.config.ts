@@ -8,6 +8,9 @@ const allowedDevOrigins = (
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
   allowedDevOrigins,
   async rewrites() {
     const apiBase = process.env.CONTENT_API_BASE_URL || "http://backend:4000/api";
