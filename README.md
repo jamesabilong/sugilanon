@@ -27,6 +27,9 @@ config.
 After triggering a deploy, check `jamesabilong/fpdocker` Actions for the
 `sugilanon-updated` run. That workflow is responsible for building and pushing
 the production image before the VPS updates the `freshprice_sugilanon` service.
+If the Sugilanon action reports `Bad credentials`, update the `GH_PAT` Actions
+secret in `jamesabilong/sugilanon`; that token must be allowed to create a
+repository dispatch event in `jamesabilong/fpdocker`.
 
 ## Getting Started
 
