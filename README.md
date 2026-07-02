@@ -24,6 +24,10 @@ production image built from. Use a token with permission to dispatch workflows i
 `master` before triggering this dispatch so the VPS pulls the updated stack
 config.
 
+After triggering a deploy, check `jamesabilong/fpdocker` Actions for the
+`sugilanon-updated` run. That workflow is responsible for building and pushing
+the production image before the VPS updates the `freshprice_sugilanon` service.
+
 ## Getting Started
 
 First, run the development server:
