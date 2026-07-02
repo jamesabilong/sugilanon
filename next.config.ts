@@ -8,6 +8,7 @@ const allowedDevOrigins = (
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   turbopack: {
     root: process.cwd(),
   },
