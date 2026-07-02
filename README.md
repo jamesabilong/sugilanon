@@ -5,6 +5,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 Pushing to `main` or `master` dispatches `sugilanon-updated` to
 `jamesabilong/fpdocker`, which builds `ghcr.io/jamesabilong/sugilanon:latest`
 from the pushed ref and updates the `freshprice_sugilanon` Swarm service.
+Any push to those branches triggers the deployment chain, including README-only
+changes.
 
 To manually trigger the same deployment without a new Sugilanon commit:
 
