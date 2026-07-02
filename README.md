@@ -8,9 +8,13 @@ from the pushed ref and updates the `freshprice_sugilanon` Swarm service.
 Any push to those branches triggers the deployment chain, including README-only
 changes.
 
-To manually trigger the same deployment without a new Sugilanon commit:
+To manually trigger the same deployment without a new Sugilanon commit, set a
+GitHub token in your shell and dispatch `sugilanon-updated` directly to
+`jamesabilong/fpdocker`:
 
 ```bash
+export GH_PAT='your_github_token'
+
 curl -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: token ${GH_PAT}" \
@@ -23,6 +27,10 @@ production image built from. Use a token with permission to dispatch workflows i
 `jamesabilong/fpdocker`. If Docker deployment files changed, push `fpdocker`
 `master` before triggering this dispatch so the VPS pulls the updated stack
 config.
+
+A successful manual dispatch returns no response body from GitHub. If the
+response is `Bad credentials`, the token is missing, expired, or lacks access to
+create repository dispatch events in `jamesabilong/fpdocker`.
 
 After triggering a deploy, check `jamesabilong/fpdocker` Actions for the
 `sugilanon-updated` run. That workflow is responsible for building and pushing
