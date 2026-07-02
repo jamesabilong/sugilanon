@@ -1,5 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Deployment Trigger
+
+Pushing to `main` or `master` dispatches `sugilanon-updated` to
+`jamesabilong/fpdocker`, which builds `ghcr.io/jamesabilong/sugilanon:latest`
+from the pushed ref and updates the `freshprice_sugilanon` Swarm service.
+
+To manually trigger the same deployment without a new Sugilanon commit:
+
+```bash
+curl -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: token ${GH_PAT}" \
+  https://api.github.com/repos/jamesabilong/fpdocker/dispatches \
+  -d '{"event_type": "sugilanon-updated", "client_payload": {"ref": "main"}}'
+```
+
+Set `client_payload.ref` to `main` or `master`, matching the branch you want the
+production image built from. Use a token with permission to dispatch workflows in
+`jamesabilong/fpdocker`. If Docker deployment files changed, push `fpdocker`
+`master` before triggering this dispatch so the VPS pulls the updated stack
+config.
+
 ## Getting Started
 
 First, run the development server:
