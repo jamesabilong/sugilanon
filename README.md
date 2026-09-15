@@ -39,6 +39,24 @@ If the Sugilanon action reports `Bad credentials`, update the `GH_PAT` Actions
 secret in `jamesabilong/sugilanon`; that token must be allowed to create a
 repository dispatch event in `jamesabilong/fpdocker`.
 
+## Production health check
+
+The production Swarm health check calls `GET /health`, an endpoint with no
+content API dependency. Do not use `/` for the health check: the home page
+renders live content and may exceed Swarm's five-second probe timeout despite a
+healthy Next.js server. The resulting unhealthy task is terminated with exit
+143 and restarted.
+
+When this endpoint or its Docker health-check configuration changes, push the
+`fpdocker` `master` change first, then push Sugilanon so the deployment uses the
+new Compose config and image. Verify the deployed service with:
+
+```sh
+docker service ps freshprice_sugilanon
+curl -fsS http://127.0.0.1:3001/health
+curl -I https://philwatch.com/
+```
+
 ## Getting Started
 
 First, run the development server:
