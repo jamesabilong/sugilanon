@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { RetireLegacyServiceWorker } from "@/components/RetireLegacyServiceWorker";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-zinc-50 text-zinc-950">
+        <RetireLegacyServiceWorker />
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <div className="flex-1">{children}</div>
