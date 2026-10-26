@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { EarthquakeWatch } from "@/components/EarthquakeWatch";
 import { formatDate, getArticleImageUrl } from "@/lib/articles";
-import { fetchCategories, fetchLatestEarthquakes, fetchPublishedArticles } from "@/lib/api";
+import { fetchCategories, fetchLatestEarthquakes, fetchPublishedArticles } from "@/lib/publicContentApi";
 
 export default async function Home() {
   const [articles, categories, earthquakeFeed] = await Promise.all([

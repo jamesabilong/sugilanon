@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { ArticleGrid } from "@/components/articles/ArticleGrid";
-import { fetchCategories, fetchCategoryArticles } from "@/lib/api";
+import { fetchCategories, fetchCategoryArticles } from "@/lib/publicContentApi";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

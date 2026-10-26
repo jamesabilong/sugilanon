@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { formatDate, getArticleImageUrl } from "@/lib/articles";
-import { fetchArticleBySlug, fetchPublishedArticles } from "@/lib/api";
+import { fetchArticleBySlug, fetchPublishedArticles } from "@/lib/publicContentApi";
 
 function articleContentLines(content: string | string[]) {
   const text = Array.isArray(content) ? content.join("\n\n") : content;

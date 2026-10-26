@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins,
   async rewrites() {
-    const apiBase = process.env.CONTENT_API_BASE_URL || "http://backend:4000/api";
+    const apiBase = process.env.CONTENT_API_BASE_URL || (process.env.NODE_ENV === "production" ? "http://freshprice_backend:4000/api" : "http://backend:4000/api");
 
     return [
       {

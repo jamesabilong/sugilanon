@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { fetchCategories } from "@/lib/api";
+import { fetchCategories } from "@/lib/publicContentApi";
 
 export async function SiteHeader() {
   const categories = await fetchCategories();

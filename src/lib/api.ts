@@ -1,18 +1,13 @@
-import type { Article, Category, EarthquakeFeed, Paginated, SourceDraft } from "@/types/article";
+import type { Article, Category, Paginated, SourceDraft } from "@/types/article";
 
-type RequestOptions = RequestInit & {
-  useInternalBase?: boolean;
-};
+type RequestOptions = RequestInit;
 
 const publicApiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
-const internalApiBase = process.env.CONTENT_API_BASE_URL || publicApiBase;
 
-const apiBase = (useInternalBase = false) =>
-  (useInternalBase ? internalApiBase : publicApiBase).replace(/\/$/, "");
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { useInternalBase = false, headers, ...rest } = options;
-  const response = await fetch(`${apiBase(useInternalBase)}${path}`, {
+  const { headers, ...rest } = options;
+  const response = await fetch(`${publicApiBase.replace(/\/$/, "")}${path}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -37,77 +32,6 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   return response.json() as Promise<T>;
-}
-
-export async function fetchPublishedArticles(params = "", useInternalBase = true) {
-	try {
-		const result = await request<Paginated<Article>>(`/sugilanon/articles${params}`, {
-			cache: "no-store",
-			useInternalBase,
-		});
-		return result.data;
-	} catch {
-		return [];
-	}
-}
-
-export async function fetchArticleBySlug(slug: string) {
-	try {
-		return await request<Article>(`/sugilanon/articles/${slug}`, {
-			cache: "no-store",
-			useInternalBase: true,
-		});
-	} catch {
-		return null;
-	}
-}
-
-export async function fetchCategories(useInternalBase = true) {
-	try {
-		const categories = await request<Category[]>("/sugilanon/categories", {
-			cache: "no-store",
-			useInternalBase,
-		});
-		return categories;
-	} catch {
-		return [];
-	}
-}
-
-export async function fetchCategoryArticles(slug: string) {
-	try {
-		const result = await request<Paginated<Article>>(`/sugilanon/categories/${slug}/articles`, {
-			cache: "no-store",
-			useInternalBase: true,
-		});
-		return result.data;
-	} catch {
-		return [];
-	}
-}
-
-export async function searchBackendArticles(query: string) {
-  const search = query ? `?q=${encodeURIComponent(query)}` : "";
-	try {
-		const result = await request<Paginated<Article>>(`/sugilanon/search${search}`, {
-			cache: "no-store",
-			useInternalBase: true,
-		});
-		return result.data;
-	} catch {
-		return [];
-	}
-}
-
-export async function fetchLatestEarthquakes() {
-  try {
-    return await request<EarthquakeFeed>("/sugilanon/earthquakes/latest", {
-      cache: "no-store",
-      useInternalBase: true,
-    });
-  } catch {
-    return null;
-  }
 }
 
 export const adminApi = {

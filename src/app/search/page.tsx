@@ -1,6 +1,6 @@
 import { ArticleGrid } from "@/components/articles/ArticleGrid";
 import { SearchForm } from "@/components/ui/SearchForm";
-import { searchBackendArticles } from "@/lib/api";
+import { searchBackendArticles } from "@/lib/publicContentApi";
 
 export default async function SearchPage({
   searchParams,
