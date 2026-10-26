@@ -7,6 +7,7 @@ export function SearchForm({ defaultValue = "" }: { defaultValue?: string }) {
       <input
         id="site-search"
         name="q"
+        maxLength={120}
         defaultValue={defaultValue}
         placeholder="Search title, tag, category, or topic"
         className="min-h-12 flex-1 border border-zinc-300 bg-white px-4 text-base text-zinc-950 outline-none transition focus:border-zinc-950"
