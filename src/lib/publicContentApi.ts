@@ -1,5 +1,6 @@
 import "server-only";
 import type { Article, Category, EarthquakeFeed, Paginated } from "@/types/article";
+import { searchQueryLength } from "./searchQuery";
 
 type RequestOptions = RequestInit & {
   useInternalBase?: boolean;
@@ -92,17 +93,13 @@ export async function fetchCategoryArticles(slug: string) {
 	}
 }
 
-export async function searchBackendArticles(query: string) {
-  const search = query ? `?q=${encodeURIComponent(query)}` : "";
-	try {
-		const result = await request<Paginated<Article>>(`/sugilanon/search${search}`, {
-			cache: "no-store",
-			useInternalBase: true,
-		});
-		return result.data;
-	} catch {
-		return [];
-	}
+export async function searchBackendArticles(query: string, page = 1) {
+  const search = new URLSearchParams({ page: String(page) });
+  if (searchQueryLength(query)) search.set("q", query);
+  return request<Paginated<Article>>(`/sugilanon/search?${search}`, {
+    cache: "no-store",
+    useInternalBase: true,
+  });
 }
 
 export async function fetchLatestEarthquakes() {
